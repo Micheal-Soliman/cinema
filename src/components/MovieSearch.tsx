@@ -24,11 +24,11 @@ const MovieSearch: React.FC = () => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Popular movie suggestions
-  const popularMovies = [
+  // Popular movie suggestions - moved outside component to prevent re-creation
+  const popularMovies = useMemo(() => [
     'Batman', 'Avengers', 'Spider-Man', 'Superman', 'Iron Man', 
     'The Dark Knight', 'Inception', 'Interstellar', 'Joker', 'Wonder Woman'
-  ];
+  ], []);
 
   const loadSuggestedMovies = useCallback(async () => {
     setIsLoading(true);
@@ -162,7 +162,7 @@ const MovieSearch: React.FC = () => {
   // Load suggested movies on initial load
   React.useEffect(() => {
     loadSuggestedMovies();
-  }, [loadSuggestedMovies]);
+  }, []); // Empty dependency array - only run once on mount
 
   // Effect to trigger search when debounced term changes
   React.useEffect(() => {
@@ -172,7 +172,8 @@ const MovieSearch: React.FC = () => {
       // If search is cleared, show suggestions again
       loadSuggestedMovies();
     }
-  }, [debouncedSearchTerm, searchMovies, loadSuggestedMovies]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]); // Only depend on the search term to prevent infinite loops
 
   const maxPages = Math.ceil(totalResults / 10);
   const hasMoreMovies = currentPage < maxPages;
