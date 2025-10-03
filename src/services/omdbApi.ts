@@ -1,10 +1,10 @@
-import { Movie, MovieDetails, SearchResponse } from '@/types/movie';
+import { MovieDetails, SearchResponse } from '@/types/movie';
 
 const API_KEY = process.env.NEXT_PUBLIC_OMDB_API_KEY || 'your-api-key-here';
 const BASE_URL = 'https://www.omdbapi.com/';
 
 class OMDbApiService {
-  private cache = new Map<string, any>();
+  private cache = new Map<string, { data: unknown; timestamp: number }>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   private getCacheKey(params: Record<string, string>): string {
@@ -15,7 +15,7 @@ class OMDbApiService {
     return Date.now() - timestamp < this.CACHE_DURATION;
   }
 
-  private async makeRequest(params: Record<string, string>): Promise<any> {
+  private async makeRequest(params: Record<string, string>): Promise<unknown> {
     const cacheKey = this.getCacheKey(params);
     const cached = this.cache.get(cacheKey);
     
@@ -78,7 +78,7 @@ class OMDbApiService {
       s: query.trim(),
       page: page.toString(),
       type: 'movie'
-    });
+    }) as Promise<SearchResponse>;
   }
 
   async getMovieDetails(imdbId: string): Promise<MovieDetails> {
@@ -89,7 +89,7 @@ class OMDbApiService {
     return this.makeRequest({
       i: imdbId,
       plot: 'full'
-    });
+    }) as Promise<MovieDetails>;
   }
 }
 

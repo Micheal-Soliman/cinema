@@ -19,7 +19,7 @@ const MovieSearch: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [allMovies, setAllMovies] = useState<Movie[]>([]);
+  const [, setAllMovies] = useState<Movie[]>([]);
   const [isShowingSuggestions, setIsShowingSuggestions] = useState(true);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -37,18 +37,17 @@ const MovieSearch: React.FC = () => {
 
     try {
       const allSuggestedMovies: Movie[] = [];
-      
       // Load popular movies in parallel for better performance
       const moviePromises = popularMovies.slice(0, 6).map(async (movieTitle) => {
         try {
           const response = await omdbApi.searchMovies(movieTitle, 1);
           return response.Search && response.Search.length > 0 ? response.Search[0] : null;
-        } catch (err) {
+        } catch {
+          // Continue with other movies if one fails
           console.log(`Failed to load ${movieTitle}`);
           return null;
         }
       });
-
       const results = await Promise.allSettled(moviePromises);
       
       results.forEach((result) => {
@@ -65,12 +64,12 @@ const MovieSearch: React.FC = () => {
       setMovies(uniqueSuggestions);
       setAllMovies(uniqueSuggestions);
       setTotalResults(uniqueSuggestions.length);
-    } catch (err) {
+    } catch {
       setError('Failed to load suggested movies');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [popularMovies]);
 
   const searchMovies = useCallback(async (query: string, page: number = 1) => {
     if (!query.trim()) {
@@ -239,7 +238,7 @@ const MovieSearch: React.FC = () => {
                   ) : (
                     <>
                       <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1">
-                        Search Results for "{debouncedSearchTerm}"
+                        Search Results for &quot;{debouncedSearchTerm}&quot;
                       </h3>
                       <p className="text-sm sm:text-base text-gray-600">
                         Showing {movies.length} of {totalResults.toLocaleString()} movies
@@ -264,7 +263,7 @@ const MovieSearch: React.FC = () => {
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">No movies found</h3>
             <p className="text-gray-500 max-w-md mx-auto">
-              We couldn't find any movies matching "{debouncedSearchTerm}". Try a different search term or check your spelling.
+              We couldn&apos;t find any movies matching &quot;{debouncedSearchTerm}&quot;. Try a different search term or check your spelling.
             </p>
           </div>
         )}
