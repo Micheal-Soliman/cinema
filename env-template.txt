@@ -1,0 +1,6 @@
+# Copy this to .env.local with your actual API key
+NEXT_PUBLIC_OMDB_API_KEY=d7ef3458
+
+# Your API key is: d7ef3458
+# Make sure to activate it by clicking the link in your email first!
+# Test URL: http://www.omdbapi.com/?i=tt3896198&apikey=d7ef3458
